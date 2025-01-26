@@ -10,7 +10,16 @@ from abc import ABC, abstractmethod
 
 
 class MyGridSearchCV(GridSearchCV):
-    def __init__(self, estimator, param_grid):
+    """
+    Custom implementation of GridSearchCV for convenience.
+
+    This class inherits from the GridSearchCV class and allows users to perform an exhaustive search over specified
+    parameter values for an estimator.
+
+    It is initialized with an estimator and a parameter grid defining the range of hyperparameters to search.
+    """
+
+    def __init__(self, estimator: object, param_grid: dict):
         self.estimator = estimator
         self.param_grid = param_grid
         super().__init__(
@@ -27,14 +36,14 @@ class MyGridSearchCV(GridSearchCV):
         )
 
 
-param_grid = {"C": [0.5, 1, 1.5]}
-model = SVC()
-grid_model = MyGridSearchCV(estimator=model, param_grid=param_grid)
-
-
 class BaseClass(ABC):
-    def __init__(self, path):
+    """
+    Base class for handling CSV data preprocessing and preparing it for machine learning tasks.
 
+    Subclasses must implement the abstract methods to provide specific functionality.
+    """
+
+    def __init__(self, path: str):
         if not os.path.exists(path):
             raise Exception()
 
@@ -81,7 +90,17 @@ class BaseClass(ABC):
 
 
 class Classification(BaseClass):
-    def __init__(self, path, perform_scaling, model):
+    """
+    Handles classification tasks by preparing datasets, scaling features, splitting data,
+    and fitting machine learning models.
+
+    This class is designed to streamline the process of preparing data for machine learning classification tasks,
+    training a model, evaluating its performance, and saving the trained model for future use.
+    """
+
+    __slots__ = ["path", "perform_scaling", "model"]
+
+    def __init__(self, path: str, perform_scaling: bool, model: MyGridSearchCV):
         super().__init__(path)
         self.perform_scaling = perform_scaling
         self.model = model
@@ -140,6 +159,11 @@ class Classification(BaseClass):
         report = self.fit_and_evaluate_model(datasets_after_scaling)
         print(report)
 
+
+# Initializing the custom GridSearchCV
+param_grid = {"C": [0.5, 1, 1.5]}
+model = SVC()
+grid_model = MyGridSearchCV(estimator=model, param_grid=param_grid)
 
 if __name__ == "__main__":
     instance = Classification("data/iris.csv", True, grid_model)
